@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class QuantityMeasurementApp {
 
-    // ================= ENUM FOR UNITS =================
+    // ================= ENUM =================
     enum LengthUnit {
         FEET(1.0),
         INCH(1.0 / 12.0),
@@ -47,28 +47,42 @@ public class QuantityMeasurementApp {
             return targetUnit.fromFeet(base);
         }
 
-        // 🔥 UC6: Instance add method
+        // ================= UC6 (existing) =================
         Quantity add(Quantity other) {
-            if (other == null || !Double.isFinite(this.value) || !Double.isFinite(other.value)) {
+            double sumFeet = this.toFeet() + other.toFeet();
+            double result = this.unit.fromFeet(sumFeet);
+            return new Quantity(result, this.unit);
+        }
+
+        // ================= UC7 (NEW) =================
+        Quantity add(Quantity other, LengthUnit targetUnit) {
+
+            if (other == null || targetUnit == null ||
+                    !Double.isFinite(this.value) || !Double.isFinite(other.value)) {
                 throw new IllegalArgumentException("Invalid input for addition");
             }
 
-            double sumFeet = this.toFeet() + other.toFeet(); // Step 1: base addition
-            double resultValue = this.unit.fromFeet(sumFeet); // Step 2: convert to first unit
+            // Step 1: convert both to base
+            double sumFeet = this.toFeet() + other.toFeet();
 
-            return new Quantity(resultValue, this.unit);
+            // Step 2: convert to target unit
+            double resultValue = targetUnit.fromFeet(sumFeet);
+
+            // Step 3: return new Quantity in target unit
+            return new Quantity(resultValue, targetUnit);
         }
 
-        // 🔥 UC6: Static add method
-        static Quantity add(Quantity q1, Quantity q2) {
-            if (q1 == null || q2 == null) {
-                throw new IllegalArgumentException("Null quantity not allowed");
+        // ================= STATIC VERSION =================
+        static Quantity add(Quantity q1, Quantity q2, LengthUnit targetUnit) {
+
+            if (q1 == null || q2 == null || targetUnit == null) {
+                throw new IllegalArgumentException("Invalid input");
             }
 
             double sumFeet = q1.toFeet() + q2.toFeet();
-            double resultValue = q1.unit.fromFeet(sumFeet);
+            double resultValue = targetUnit.fromFeet(sumFeet);
 
-            return new Quantity(resultValue, q1.unit);
+            return new Quantity(resultValue, targetUnit);
         }
 
         public String toString() {
@@ -76,7 +90,7 @@ public class QuantityMeasurementApp {
         }
     }
 
-    // ================= MAIN METHOD =================
+    // ================= MAIN =================
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -98,13 +112,17 @@ public class QuantityMeasurementApp {
             System.out.print("Enter unit 2 (FEET/INCH/YARD/CM): ");
             LengthUnit u2 = LengthUnit.valueOf(sc.nextLine().toUpperCase());
 
+            // Target Unit
+            System.out.print("Enter target unit (FEET/INCH/YARD/CM): ");
+            LengthUnit target = LengthUnit.valueOf(sc.nextLine().toUpperCase());
+
             Quantity q1 = new Quantity(v1, u1);
             Quantity q2 = new Quantity(v2, u2);
 
-            // 🔥 Perform addition
-            Quantity result = q1.add(q2);
+            // 🔥 UC7 Addition
+            Quantity result = q1.add(q2, target);
 
-            System.out.println("Result (in unit of first operand): " + result);
+            System.out.println("Result in " + target + ": " + result);
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid numeric input!");
