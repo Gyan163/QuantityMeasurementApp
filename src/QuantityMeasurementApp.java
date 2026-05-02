@@ -7,7 +7,7 @@ public class QuantityMeasurementApp {
         FEET(1.0),
         INCH(1.0 / 12.0),
         YARD(3.0),
-        CM(0.393701 / 12.0);  // cm → inch → feet
+        CM(0.393701 / 12.0); // cm → inch → feet
 
         private final double toFeetFactor;
 
@@ -17,6 +17,10 @@ public class QuantityMeasurementApp {
 
         public double toFeet(double value) {
             return value * toFeetFactor;
+        }
+
+        public double fromFeet(double feetValue) {
+            return feetValue / toFeetFactor;
         }
     }
 
@@ -37,6 +41,22 @@ public class QuantityMeasurementApp {
         boolean isEqual(Quantity other) {
             return Math.abs(this.toFeet() - other.toFeet()) < 0.0001;
         }
+
+        // 🔥 UC5: Convert this quantity to target unit
+        double convertTo(LengthUnit targetUnit) {
+            double baseFeet = this.toFeet();                 // Step 1: to base
+            return targetUnit.fromFeet(baseFeet);            // Step 2: to target
+        }
+
+        // 🔥 Static conversion method
+        static double convert(double value, LengthUnit source, LengthUnit target) {
+            if (!Double.isFinite(value) || source == null || target == null) {
+                throw new IllegalArgumentException("Invalid input for conversion");
+            }
+
+            double baseFeet = source.toFeet(value);
+            return target.fromFeet(baseFeet);
+        }
     }
 
     // ================= MAIN METHOD =================
@@ -47,33 +67,25 @@ public class QuantityMeasurementApp {
         System.out.println("=== Quantity Measurement App ===");
 
         try {
-            // Input 1
-            System.out.print("Enter value 1: ");
-            double v1 = Double.parseDouble(sc.nextLine());
+            // Input
+            System.out.print("Enter value: ");
+            double value = Double.parseDouble(sc.nextLine());
 
-            System.out.print("Enter unit 1 (FEET/INCH/YARD/CM): ");
-            LengthUnit u1 = LengthUnit.valueOf(sc.nextLine().toUpperCase());
+            System.out.print("Enter source unit (FEET/INCH/YARD/CM): ");
+            LengthUnit source = LengthUnit.valueOf(sc.nextLine().toUpperCase());
 
-            // Input 2
-            System.out.print("Enter value 2: ");
-            double v2 = Double.parseDouble(sc.nextLine());
+            System.out.print("Enter target unit (FEET/INCH/YARD/CM): ");
+            LengthUnit target = LengthUnit.valueOf(sc.nextLine().toUpperCase());
 
-            System.out.print("Enter unit 2 (FEET/INCH/YARD/CM): ");
-            LengthUnit u2 = LengthUnit.valueOf(sc.nextLine().toUpperCase());
+            // Convert using static method
+            double result = Quantity.convert(value, source, target);
 
-            // Create objects
-            Quantity q1 = new Quantity(v1, u1);
-            Quantity q2 = new Quantity(v2, u2);
-
-            // Compare
-            boolean result = q1.isEqual(q2);
-
-            System.out.println("Are quantities equal? " + result);
+            System.out.println("Converted value: " + result + " " + target);
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid numeric input!");
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid unit entered!");
+            System.out.println("Invalid unit or input!");
         }
 
         sc.close();
