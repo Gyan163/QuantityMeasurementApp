@@ -1,62 +1,74 @@
+import java.util.Scanner;
+
 public class QuantityMeasurementApp {
 
-    // ================= FEET CLASS =================
-    static class Feet {
+    // ================= GENERIC QUANTITY CLASS =================
+    static class Quantity {
         double value;
+        String unit;
 
-        Feet(double value) {
+        // Conversion constants
+        static final double INCH_TO_FEET = 1.0 / 12.0;
+
+        Quantity(double value, String unit) {
             this.value = value;
+            this.unit = unit.toLowerCase();
         }
 
-        boolean isEqual(Feet other) {
-            return Math.abs(this.value - other.value) < 0.0001;
-        }
-    }
-
-    // ================= INCHES CLASS =================
-    static class Inches {
-        double value;
-
-        Inches(double value) {
-            this.value = value;
+        // Convert everything to FEET (base unit)
+        double toFeet() {
+            if (unit.equals("feet")) {
+                return value;
+            } else if (unit.equals("inch") || unit.equals("inches")) {
+                return value * INCH_TO_FEET;
+            } else {
+                throw new IllegalArgumentException("Invalid unit: " + unit);
+            }
         }
 
-        boolean isEqual(Inches other) {
-            return Math.abs(this.value - other.value) < 0.0001;
+        // Equality check
+        boolean isEqual(Quantity other) {
+            return Math.abs(this.toFeet() - other.toFeet()) < 0.0001;
         }
-    }
-
-    // ================= STATIC METHODS =================
-    public static boolean compareFeet(double f1, double f2) {
-        Feet feet1 = new Feet(f1);
-        Feet feet2 = new Feet(f2);
-        return feet1.isEqual(feet2);
-    }
-
-    public static boolean compareInches(double i1, double i2) {
-        Inches inch1 = new Inches(i1);
-        Inches inch2 = new Inches(i2);
-        return inch1.isEqual(inch2);
     }
 
     // ================= MAIN METHOD =================
     public static void main(String[] args) {
 
+        Scanner sc = new Scanner(System.in);
+
         System.out.println("=== Quantity Measurement App ===");
 
-        // Hard-coded values (as per UC2 requirement)
-        double feetValue1 = 5.0;
-        double feetValue2 = 5.0;
+        try {
+            // Input 1
+            System.out.print("Enter value 1: ");
+            double v1 = Double.parseDouble(sc.nextLine());
 
-        double inchValue1 = 12.0;
-        double inchValue2 = 12.0;
+            System.out.print("Enter unit 1 (feet/inches): ");
+            String u1 = sc.nextLine();
 
-        // Compare Feet
-        boolean feetResult = compareFeet(feetValue1, feetValue2);
-        System.out.println("Feet Equal? " + feetResult);
+            // Input 2
+            System.out.print("Enter value 2: ");
+            double v2 = Double.parseDouble(sc.nextLine());
 
-        // Compare Inches
-        boolean inchResult = compareInches(inchValue1, inchValue2);
-        System.out.println("Inches Equal? " + inchResult);
+            System.out.print("Enter unit 2 (feet/inches): ");
+            String u2 = sc.nextLine();
+
+            // Create objects
+            Quantity q1 = new Quantity(v1, u1);
+            Quantity q2 = new Quantity(v2, u2);
+
+            // Compare
+            boolean result = q1.isEqual(q2);
+
+            System.out.println("Are quantities equal? " + result);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid numeric input!");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+
+        sc.close();
     }
 }
