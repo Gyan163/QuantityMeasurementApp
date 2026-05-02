@@ -1,39 +1,62 @@
-import java.util.Scanner;
-
 public class QuantityMeasurementApp {
 
-    // Method to check equality
-    public static boolean areEqual(double value1, double value2) {
-        return value1 == value2;
+    // ================= FEET CLASS =================
+    static class Feet {
+        double value;
+
+        Feet(double value) {
+            this.value = value;
+        }
+
+        boolean isEqual(Feet other) {
+            return Math.abs(this.value - other.value) < 0.0001;
+        }
     }
 
-    public static void main(String[] args) {
+    // ================= INCHES CLASS =================
+    static class Inches {
+        double value;
 
-        Scanner sc = new Scanner(System.in);
+        Inches(double value) {
+            this.value = value;
+        }
+
+        boolean isEqual(Inches other) {
+            return Math.abs(this.value - other.value) < 0.0001;
+        }
+    }
+
+    // ================= STATIC METHODS =================
+    public static boolean compareFeet(double f1, double f2) {
+        Feet feet1 = new Feet(f1);
+        Feet feet2 = new Feet(f2);
+        return feet1.isEqual(feet2);
+    }
+
+    public static boolean compareInches(double i1, double i2) {
+        Inches inch1 = new Inches(i1);
+        Inches inch2 = new Inches(i2);
+        return inch1.isEqual(inch2);
+    }
+
+    // ================= MAIN METHOD =================
+    public static void main(String[] args) {
 
         System.out.println("=== Quantity Measurement App ===");
 
-        double feet1 = 0;
-        double feet2 = 0;
+        // Hard-coded values (as per UC2 requirement)
+        double feetValue1 = 5.0;
+        double feetValue2 = 5.0;
 
-        try {
-            // Input
-            System.out.print("Enter first value (in feet): ");
-            feet1 = Double.parseDouble(sc.nextLine());
+        double inchValue1 = 12.0;
+        double inchValue2 = 12.0;
 
-            System.out.print("Enter second value (in feet): ");
-            feet2 = Double.parseDouble(sc.nextLine());
+        // Compare Feet
+        boolean feetResult = compareFeet(feetValue1, feetValue2);
+        System.out.println("Feet Equal? " + feetResult);
 
-            // Comparison
-            boolean result = areEqual(feet1, feet2);
-
-            // Output
-            System.out.println("Are both values equal? " + result);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input! Please enter numeric values only.");
-        }
-
-        sc.close();
+        // Compare Inches
+        boolean inchResult = compareInches(inchValue1, inchValue2);
+        System.out.println("Inches Equal? " + inchResult);
     }
 }
